@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="lt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#33265c">
+  <title>Komenskio Logo</title>
+  <style>
+    :root {
+      --ink: #29233b;
+      --muted: #716b80;
+      --paper: #fbfaf5;
+      --panel: #f2efe7;
+      --violet: #7148c7;
+      --violet-dark: #49307e;
+      --lime: #dff08b;
+      --line: #d8d2c5;
+      --danger: #a93d5b;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; max-width: 100%; height: 100%; overflow: hidden; }
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow: hidden;
+      color: var(--ink);
+      background: #d9d4c9;
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, textarea { font: inherit; }
+    button { color: inherit; }
+    .app { width: 100%; min-width: 0; height: 100%; overflow: hidden; display: grid; grid-template-rows: 58px minmax(280px, 1fr) minmax(250px, 38vh); }
+    header {
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 22px;
+      color: white;
+      background: #33265c;
+      border-bottom: 1px solid #241b43;
+      box-shadow: 0 2px 12px #2c234035;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 32px; height: 32px; display: grid; place-items: center;
+      color: #33265c; background: var(--lime); border-radius: 9px 9px 9px 3px;
+      font: 900 18px/1 Georgia, serif; transform: rotate(-3deg);
+    }
+    .brand strong { font: 700 18px/1.1 Georgia, serif; letter-spacing: .01em; }
+    .brand span { margin-left: 8px; color: #c8bddf; font: 500 11px/1 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .top-actions { display: flex; gap: 8px; }
+    .ghost, .icon-btn {
+      border: 1px solid #716197; border-radius: 8px; padding: 7px 11px; color: #eee9fa; background: #ffffff0a; cursor: pointer;
+    }
+    .ghost:hover, .icon-btn:hover { background: #ffffff18; }
+    .stage { position: relative; min-height: 0; overflow: hidden; background: var(--paper); }
+    #canvas { width: 100%; height: 100%; display: block; }
+    .stage-label {
+      position: absolute; top: 15px; left: 18px; display: flex; align-items: center; gap: 8px;
+      padding: 7px 10px; color: var(--muted); background: #fbfaf5df; border: 1px solid #dfd9cd;
+      border-radius: 8px; backdrop-filter: blur(5px); font-size: 12px; box-shadow: 0 3px 10px #4a42520e;
+    }
+    .stage-label i { width: 7px; height: 7px; border-radius: 50%; background: #65a95d; box-shadow: 0 0 0 3px #65a95d20; }
+    .coords { position: absolute; right: 18px; bottom: 14px; color: #8b8497; font: 11px/1 ui-monospace, monospace; }
+    .console {
+      width: 100%; min-width: 0; min-height: 0; display: grid; grid-template-columns: minmax(400px, 34%) minmax(0, 1fr);
+      background: var(--panel); border-top: 5px solid var(--violet-dark); box-shadow: 0 -4px 18px #342b421a;
+    }
+    .editor { min-width: 0; min-height: 0; overflow: hidden; padding: 14px 16px 15px 18px; display: grid; grid-template-rows: auto 1fr auto; gap: 9px; }
+    .editor-head { min-width: 0; overflow: hidden; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .prompt { display: flex; align-items: center; gap: 8px; font-weight: 750; font-size: 13px; }
+    .prompt b { color: var(--violet); font: 800 18px/1 ui-monospace, monospace; }
+    .hint { color: var(--muted); font-size: 11px; }
+    .execution-indicator {
+      min-width: 0; max-width: 52%; margin-left: auto; padding: 5px 8px; display: flex; align-items: center; gap: 7px;
+      color: #52398a; background: #e9e0fa; border: 1px solid #cbb9ed; border-radius: 7px;
+      opacity: 0; transform: translateY(2px); transition: opacity .14s ease, transform .14s ease;
+      pointer-events: none;
+    }
+    .execution-indicator.active { opacity: 1; transform: translateY(0); }
+    .execution-indicator i { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--violet); animation: pulse 1s infinite; }
+    .execution-indicator code { min-width: 0; overflow: hidden; color: inherit; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    @keyframes pulse { 50% { opacity: .3; transform: scale(.75); } }
+    .input-wrap { position: relative; width: 100%; min-width: 0; min-height: 0; overflow: hidden; }
+    textarea {
+      display: block; width: 100%; max-width: 100%; min-width: 0; height: 100%; min-height: 90px; resize: none; padding: 13px 15px 13px 38px;
+      color: #302744; caret-color: var(--violet); background: #fffefb; border: 1px solid #cfc8bb; border-radius: 8px;
+      outline: none; box-shadow: inset 0 1px 2px #342b4210; font: 14px/1.6 "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+    textarea:focus { border-color: #8b72c2; box-shadow: 0 0 0 3px #7148c718; }
+    .gutter { position: absolute; top: 14px; left: 14px; color: var(--violet); font: 800 14px/1.6 ui-monospace, monospace; pointer-events: none; }
+    .editor-foot { min-height: 34px; display: flex; align-items: center; gap: 9px; }
+    .run {
+      display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 8px; padding: 9px 16px;
+      color: white; background: var(--violet); font-weight: 750; cursor: pointer; box-shadow: 0 3px 0 var(--violet-dark);
+    }
+    .run:hover { background: #7b52cf; transform: translateY(-1px); }
+    .run:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--violet-dark); }
+    .run:disabled { opacity: .55; cursor: wait; transform: none; }
+    .status { min-width: 0; color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status.error { color: var(--danger); }
+    .quick { min-width: 0; min-height: 0; padding: 15px 12px; border-left: 1px solid var(--line); overflow: auto; }
+    .quick h2 { margin: 0 4px 10px; font: 700 12px/1 ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; color: #756d80; }
+    .command-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+    .command-btn {
+      width: 100%; min-width: 0; min-height: 46px; padding: 7px 8px; overflow: hidden; text-align: left; color: #463a58; background: #fffdf8;
+      border: 1px solid #d7d0c3; border-radius: 9px; cursor: pointer; font-weight: 700; line-height: 1.15;
+      white-space: normal; overflow-wrap: anywhere; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    }
+    .command-btn small { display: block; margin-top: 3px; color: #857c8e; font: 9px/1.1 ui-monospace, monospace; overflow-wrap: anywhere; }
+    .command-btn:hover, .command-btn:focus-visible { border-color: #8c72c2; background: white; outline: 0; }
+    .command-btn:active { background: #ede6fa; transform: scale(.98); }
+    dialog { width: min(680px, calc(100vw - 30px)); max-height: min(720px, calc(100vh - 30px)); padding: 0; color: var(--ink); background: var(--paper); border: 0; border-radius: 13px; box-shadow: 0 24px 80px #1f173b66; }
+    dialog::backdrop { background: #211938aa; backdrop-filter: blur(3px); }
+    .modal-head { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; color: white; background: #33265c; }
+    .modal-head h2 { margin: 0; font: 700 21px/1 Georgia, serif; }
+    .close { border: 0; color: white; background: transparent; font-size: 24px; cursor: pointer; }
+    .help-body { padding: 20px 22px 26px; overflow: auto; }
+    .help-body p { margin: 0 0 16px; color: var(--muted); }
+    .commands { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--line); }
+    .commands > div { min-width: 0; padding: 9px 11px; background: #fffefb; }
+    code { color: #53388b; font: 12px/1.4 ui-monospace, monospace; overflow-wrap: anywhere; }
+    .source { margin-top: 17px !important; font-size: 12px; }
+    .source a { color: var(--violet); }
+    .command-dialog { width: min(430px, calc(100vw - 28px)); }
+    .command-form { padding: 22px; }
+    .command-form label { display: block; margin-bottom: 8px; color: var(--muted); font-weight: 650; }
+    .command-form input, .command-form select {
+      width: 100%; min-height: 54px; padding: 10px 13px; color: var(--ink); background: white;
+      border: 1px solid #cfc8bb; border-radius: 9px; outline: none; font-size: 18px;
+    }
+    .command-form input:focus, .command-form select:focus { border-color: var(--violet); box-shadow: 0 0 0 3px #7148c71b; }
+    .color-picker { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .color-picker[hidden] { display: none !important; }
+    .color-option { position: relative; min-width: 0; }
+    .color-option input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .color-option label {
+      display: flex; min-height: 62px; margin: 0; padding: 6px; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; color: #4b4455; background: white; border: 2px solid transparent; border-radius: 9px;
+      cursor: pointer; font-size: 10px; font-weight: 700; text-align: center; overflow-wrap: anywhere;
+    }
+    .color-option label::before {
+      content: ''; width: 27px; height: 27px; flex: 0 0 auto; background: var(--swatch); border: 1px solid #2d26372e;
+      border-radius: 50%; box-shadow: inset 0 0 0 1px #ffffff2e;
+    }
+    .color-option input:checked + label { border-color: var(--violet); background: #f1ebfc; box-shadow: 0 0 0 2px #7148c722; }
+    .color-option input:focus-visible + label { outline: 3px solid #7148c738; outline-offset: 1px; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .cancel, .insert { min-height: 46px; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-weight: 750; }
+    .cancel { background: transparent; border: 1px solid var(--line); }
+    .insert { color: white; background: var(--violet); border: 1px solid var(--violet); }
+    @media (min-width: 721px) and (max-width: 1100px), (min-width: 721px) and (pointer: coarse) {
+      .app { grid-template-rows: 54px minmax(210px, 1fr) minmax(350px, 50vh); }
+      .console { grid-template-columns: minmax(400px, 32%) minmax(0, 1fr); overflow: hidden; }
+      .quick { padding: 10px 12px; overflow-y: auto; }
+      .command-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .command-btn { min-height: 54px; }
+      .editor { padding: 10px 12px 12px; }
+      textarea { min-height: 76px; font-size: 16px; }
+      .run { min-height: 46px; padding-inline: 20px; }
+      .brand span, .hint { display: none; }
+      header { padding: 0 12px; }
+    }
+    @media (max-width: 720px) {
+      .app { grid-template-rows: 54px minmax(210px, 1fr) minmax(350px, 50vh); }
+      .console { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
+      .quick { grid-row: 1; padding: 10px 12px; border-left: 0; border-bottom: 1px solid var(--line); overflow-x: auto; }
+      .quick h2 { display: none; }
+      .command-grid { display: flex; width: max-content; gap: 8px; }
+      .command-btn { width: 132px; min-height: 54px; flex: 0 0 auto; }
+      .editor { grid-row: 2; padding: 10px 12px 12px; }
+      textarea { min-height: 76px; font-size: 16px; }
+      .run { min-height: 46px; padding-inline: 20px; }
+      .brand span, .hint { display: none; }
+      header { padding: 0 12px; }
+      .commands { grid-template-columns: 1fr; }
+      .commands > div:nth-child(odd) { padding-bottom: 2px; }
+      .commands > div:nth-child(even) { padding-top: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand"><div class="brand-mark">K</div><div><strong>Komenskio Logo</strong><span>vėžliuko dirbtuvė</span></div></div>
+      <div class="top-actions">
+        <button class="ghost" id="helpBtn">Komandos</button>
+        <button class="ghost" id="resetBtn" title="Išvalyti piešinį ir pradėti iš naujo">Naujas lapas</button>
+      </div>
+    </header>
+
+    <section class="stage" aria-label="Vėžliuko laukas">
+      <canvas id="canvas"></canvas>
+      <div class="stage-label"><i></i> Vėžliuko laukas</div>
+      <div class="coords" id="coords">x: 0 · y: 0 · kryptis: 0°</div>
+    </section>
+
+    <section class="console">
+      <div class="editor">
+        <div class="editor-head">
+          <div class="prompt"><b>?</b> Komandų laukas</div>
+          <div class="execution-indicator" id="executionIndicator"><i></i><code id="activeCommand"></code></div>
+          <div class="hint">Vykdyti: Ctrl / ⌘ + Enter</div>
+        </div>
+        <div class="input-wrap">
+          <span class="gutter">›</span>
+          <textarea id="code" spellcheck="false" aria-label="Logo komandos">kartok 5 [priekin 100 dešinėn 144]</textarea>
+        </div>
+        <div class="editor-foot">
+          <button class="run" id="runBtn"><span>▶</span> Vykdyti</button>
+          <span class="status" id="status">Paruošta. Parašyk komandą vėžliukui.</span>
+        </div>
+      </div>
+      <aside class="quick" aria-label="Komandų mygtukai">
+        <h2>Komandos</h2>
+        <div class="command-grid">
+          <button class="command-btn" data-command="priekin" data-input="number" data-default="100" data-label="Žingsnių skaičius">↑ Pirmyn<small>priekin</small></button>
+          <button class="command-btn" data-command="atgal" data-input="number" data-default="100" data-label="Žingsnių skaičius">↓ Atgal<small>atgal</small></button>
+          <button class="command-btn" data-command="kairėn" data-input="number" data-default="90" data-label="Kampas laipsniais">↶ Kairėn<small>kairėn</small></button>
+          <button class="command-btn" data-command="dešinėn" data-input="number" data-default="90" data-label="Kampas laipsniais">↷ Dešinėn<small>dešinėn</small></button>
+          <button class="command-btn" data-command="kartok" data-input="repeat" data-default="4" data-label="Kiek kartų kartoti?">↻ Kartoti<small>kartok</small></button>
+          <button class="command-btn" data-command="pasirink.pieštuko.spalvą" data-input="color">● Spalva<small>pasirink.pieštuko.spalvą</small></button>
+          <button class="command-btn" data-command="pieštuko.storis" data-input="number" data-default="3" data-label="Linijos storis">━ Storis<small>pieštuko.storis</small></button>
+          <button class="command-btn" data-command="piešim">✎ Piešti<small>piešim</small></button>
+          <button class="command-btn" data-command="eisim">◇ Eiti nebrėžiant<small>eisim</small></button>
+          <button class="command-btn" data-command="trinsim">⌫ Trinti<small>trinsim</small></button>
+          <button class="command-btn" data-command="namo">⌂ Namo<small>namo</small></button>
+          <button class="command-btn" data-command="valyk">□ Valyti<small>valyk</small></button>
+          <button class="command-btn" data-command="valyk.vėžliuko.lauką">⌖ Naujas laukas<small>valyk.vėžliuko.lauką</small></button>
+          <button class="command-btn" data-command="pradžių.pradžia">↺ Pradžių pradžia<small>pradžių.pradžia</small></button>
+          <button class="command-btn" data-command="lauk" data-input="number" data-default="500" data-label="Laukimo laikas milisekundėmis">◷ Palaukti<small>lauk</small></button>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <dialog id="help">
+    <div class="modal-head"><h2>Vėžliuko komandos</h2><button class="close" aria-label="Uždaryti">×</button></div>
+    <div class="help-body">
+      <p>Komandos rašomos pilnais lietuviškais pavadinimais. Didžiosios ir mažosios raidės nesiskiria.</p>
+      <div class="commands">
+        <div><code>priekin 100</code></div><div>Eiti pirmyn ir brėžti 100 žingsnių.</div>
+        <div><code>atgal 50</code></div><div>Eiti atgal 50 žingsnių.</div>
+        <div><code>dešinėn 90</code></div><div>Pasisukti dešinėn nurodytu kampu.</div>
+        <div><code>kairėn 90</code></div><div>Pasisukti kairėn nurodytu kampu.</div>
+        <div><code>kartok 4 [priekin 80 dešinėn 90]</code></div><div>Pakartoti laužtiniuose skliaustuose esančias komandas.</div>
+        <div><code>piešim</code></div><div>Nuleisti pieštuką – judant paliekama linija.</div>
+        <div><code>eisim</code></div><div>Pakelk pieštuką – judėti nebrėžiant.</div>
+        <div><code>trinsim</code></div><div>Judant trinti anksčiau nubrėžtas linijas.</div>
+        <div><code>pasirink.pieštuko.spalvą &quot;raudona</code></div><div>Pasirinkti pieštuko spalvą vardu.</div>
+        <div><code>pasirink.pieštuko.spalvą [42 128 240]</code></div><div>Pasirinkti tikslią RGB spalvą.</div>
+        <div><code>pieštuko.storis 7</code></div><div>Nustatyti pieštuko storį.</div>
+        <div><code>namo</code></div><div>Grįžti į lauko vidurį.</div>
+        <div><code>valyk</code></div><div>Išvalyti piešinį, nepajudinti vėžliuko.</div>
+        <div><code>valyk.vėžliuko.lauką</code></div><div>Išvalyti lauką ir grįžti į pradžią.</div>
+        <div><code>pradžių.pradžia</code></div><div>Atkurti visą pradinę būseną.</div>
+        <div><code>lauk 500</code></div><div>Palaukti nurodytą milisekundžių skaičių.</div>
+      </div>
+      <p class="source">Komandų pavadinimai atkurti pagal 2000 m. pamoką „Pirmosios Vėžliuko komandos“ ir <a href="https://gedmas.lt/IT/logo-komandos.html" target="_blank" rel="noreferrer">mokyklinę komandų atmintinę</a>.</p>
+    </div>
+  </dialog>
+
+  <dialog id="commandDialog" class="command-dialog">
+    <div class="modal-head"><h2 id="commandTitle">Komanda</h2><button class="close" type="button" aria-label="Uždaryti">×</button></div>
+    <form class="command-form" id="commandForm">
+      <label for="commandValue" id="commandLabel">Reikšmė</label>
+      <input id="commandValue" inputmode="decimal" autocomplete="off">
+      <div id="colorValue" class="color-picker" hidden>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-violetine" value="violetinė" checked><label for="c-violetine" style="--swatch:#8b5cf6">Violetinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-melyna" value="mėlyna"><label for="c-melyna" style="--swatch:#3b82f6">Mėlyna</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-indigo" value="indigo"><label for="c-indigo" style="--swatch:#4f46e5">Indigo</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-purpurine" value="purpurinė"><label for="c-purpurine" style="--swatch:#c026d3">Purpurinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-raudona" value="raudona"><label for="c-raudona" style="--swatch:#e63946">Raudona</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-vysnine" value="vyšninė"><label for="c-vysnine" style="--swatch:#9d174d">Vyšninė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-koraline" value="koralinė"><label for="c-koraline" style="--swatch:#ff6b6b">Koralinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-rozine" value="rožinė"><label for="c-rozine" style="--swatch:#ec77a8">Rožinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-oranzine" value="oranžinė"><label for="c-oranzine" style="--swatch:#f97316">Oranžinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-gintarine" value="gintarinė"><label for="c-gintarine" style="--swatch:#f59e0b">Gintarinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-geltona" value="geltona"><label for="c-geltona" style="--swatch:#facc15">Geltona</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-citrinine" value="citrininė"><label for="c-citrinine" style="--swatch:#e5f04a">Citrininė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-zalia" value="žalia"><label for="c-zalia" style="--swatch:#22c55e">Žalia</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-smaragdine" value="smaragdinė"><label for="c-smaragdine" style="--swatch:#059669">Smaragdinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-metine" value="mėtinė"><label for="c-metine" style="--swatch:#6ee7b7">Mėtinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-zydra" value="žydra"><label for="c-zydra" style="--swatch:#22d3ee">Žydra</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-turkio" value="turkio"><label for="c-turkio" style="--swatch:#14b8a6">Turkio</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-ruda" value="ruda"><label for="c-ruda" style="--swatch:#92400e">Ruda</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-juoda" value="juoda"><label for="c-juoda" style="--swatch:#222222">Juoda</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-antracitine" value="antracitinė"><label for="c-antracitine" style="--swatch:#444444">Antracitinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-pilka" value="pilka"><label for="c-pilka" style="--swatch:#777777">Pilka</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-sidabrine" value="sidabrinė"><label for="c-sidabrine" style="--swatch:#b8bdc7">Sidabrinė</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-balta" value="balta"><label for="c-balta" style="--swatch:#ffffff">Balta</label></div>
+        <div class="color-option"><input type="radio" name="commandColor" id="c-tamsiai-melyna" value="tamsiai.mėlyna"><label for="c-tamsiai-melyna" style="--swatch:#172554">Tamsiai mėlyna</label></div>
+      </div>
+      <div class="dialog-actions"><button class="cancel" type="button">Atšaukti</button><button class="insert" type="submit">Įterpti komandą</button></div>
+    </form>
+  </dialog>
+
+  <script>
+  (() => {
+    'use strict';
+    const WORLD = { w: 900, h: 500 };
+    const STORAGE = 'komenskio-logo-tablet-v1';
+    const canvas = document.querySelector('#canvas');
+    const ctx = canvas.getContext('2d');
+    const code = document.querySelector('#code');
+    const runBtn = document.querySelector('#runBtn');
+    const status = document.querySelector('#status');
+    const coords = document.querySelector('#coords');
+    const help = document.querySelector('#help');
+    const executionIndicator = document.querySelector('#executionIndicator');
+    const activeCommand = document.querySelector('#activeCommand');
+    const commandDialog = document.querySelector('#commandDialog');
+    const commandForm = document.querySelector('#commandForm');
+    const commandValue = document.querySelector('#commandValue');
+    const colorValue = document.querySelector('#colorValue');
+    const commandTitle = document.querySelector('#commandTitle');
+    const commandLabel = document.querySelector('#commandLabel');
+    let running = false;
+    let pendingCommand = null;
+    let view = { scale: 1, ox: 0, oy: 0 };
+    let turtle = { x: 0, y: 0, angle: 0, pen: 'down', color: '#49307e', width: 3 };
+    let strokes = [];
+
+    const colors = {
+      juoda:'#222222', antracitinė:'#444444', pilka:'#777777', sidabrinė:'#b8bdc7', balta:'#ffffff',
+      raudona:'#e63946', vyšninė:'#9d174d', koralinė:'#ff6b6b', rožinė:'#ec77a8',
+      oranžinė:'#f97316', gintarinė:'#f59e0b', geltona:'#facc15', citrininė:'#e5f04a',
+      žalia:'#22c55e', smaragdinė:'#059669', mėtinė:'#6ee7b7', žydra:'#22d3ee',
+      turkio:'#14b8a6', mėlyna:'#3b82f6', indigo:'#4f46e5', violetinė:'#8b5cf6',
+      purpurinė:'#c026d3', ruda:'#92400e', 'tamsiai.mėlyna':'#172554'
+    };
+
+    function save() {
+      try { localStorage.setItem(STORAGE, JSON.stringify({ turtle, strokes, code: code.value })); } catch (_) {}
+    }
+    function load() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORAGE));
+        if (data && data.turtle && Array.isArray(data.strokes)) {
+          turtle = { ...turtle, ...data.turtle }; strokes = data.strokes;
+          if (typeof data.code === 'string') code.value = data.code;
+        }
+      } catch (_) {}
+    }
+    function resetState(clearEditor = false) {
+      turtle = { x: 0, y: 0, angle: 0, pen: 'down', color: '#49307e', width: 3 };
+      strokes = [];
+      if (clearEditor) code.value = '';
+      save(); draw();
+    }
+    function fitCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
+      view.scale = Math.min(rect.width / WORLD.w, rect.height / WORLD.h);
+      view.ox = (rect.width - WORLD.w * view.scale) / 2;
+      view.oy = (rect.height - WORLD.h * view.scale) / 2;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); draw();
+    }
+    function screen(x, y) { return { x: view.ox + (x + WORLD.w / 2) * view.scale, y: view.oy + (WORLD.h / 2 - y) * view.scale }; }
+    function drawGrid() {
+      const rect = canvas.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height); ctx.fillStyle = '#fbfaf5'; ctx.fillRect(0, 0, rect.width, rect.height);
+      ctx.save(); ctx.strokeStyle = '#8d83900e'; ctx.lineWidth = 1;
+      for (let x = -WORLD.w / 2; x <= WORLD.w / 2; x += 25) { const a = screen(x, -WORLD.h/2), b = screen(x, WORLD.h/2); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+      for (let y = -WORLD.h / 2; y <= WORLD.h / 2; y += 25) { const a = screen(-WORLD.w/2, y), b = screen(WORLD.w/2, y); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+      const xAxisA=screen(-WORLD.w/2,0), xAxisB=screen(WORLD.w/2,0), yAxisA=screen(0,-WORLD.h/2), yAxisB=screen(0,WORLD.h/2);
+      ctx.strokeStyle='#766c851b'; ctx.beginPath(); ctx.moveTo(xAxisA.x,xAxisA.y);ctx.lineTo(xAxisB.x,xAxisB.y);ctx.moveTo(yAxisA.x,yAxisA.y);ctx.lineTo(yAxisB.x,yAxisB.y);ctx.stroke(); ctx.restore();
+    }
+    function drawTurtle() {
+      const p = screen(turtle.x, turtle.y); const s = Math.max(.78, view.scale);
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(turtle.angle * Math.PI / 180); ctx.scale(s, s);
+      ctx.shadowColor = '#2f244748'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+      ctx.fillStyle = '#7047c2'; ctx.strokeStyle = '#3e2a71'; ctx.lineWidth = 1.8;
+      [[-9,-9,5],[9,-9,5],[-9,9,5],[9,9,5]].forEach(([x,y,r]) => { ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.stroke(); });
+      ctx.beginPath(); ctx.ellipse(0,0,12,16,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#a98ae8'; ctx.beginPath();ctx.arc(0,0,7,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#7047c2';ctx.beginPath();ctx.arc(0,-18,6,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#f4edff';ctx.beginPath();ctx.arc(-2,-20,1.3,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(2,-20,1.3,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+    function draw() {
+      drawGrid(); ctx.save(); ctx.lineCap='round'; ctx.lineJoin='round';
+      for (const s of strokes) { const a=screen(s.x1,s.y1), b=screen(s.x2,s.y2); ctx.strokeStyle=s.erase?'#fbfaf5':s.color; ctx.lineWidth=(s.erase?Math.max(12,s.width*3):s.width)*view.scale; ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke(); }
+      ctx.restore(); drawTurtle();
+      coords.textContent = `x: ${Math.round(turtle.x)} · y: ${Math.round(turtle.y)} · kryptis: ${Math.round(((turtle.angle%360)+360)%360)}°`;
+    }
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    async function move(distance) {
+      const start = { x:turtle.x, y:turtle.y };
+      const rad = turtle.angle * Math.PI / 180;
+      const end = { x:start.x + Math.sin(rad)*distance, y:start.y + Math.cos(rad)*distance };
+      const steps = Math.max(1, Math.min(24, Math.ceil(Math.abs(distance)/8)));
+      for(let i=1;i<=steps;i++) {
+        const old={x:turtle.x,y:turtle.y}; turtle.x=start.x+(end.x-start.x)*i/steps; turtle.y=start.y+(end.y-start.y)*i/steps;
+        if(turtle.pen!=='up') strokes.push({x1:old.x,y1:old.y,x2:turtle.x,y2:turtle.y,color:turtle.color,width:turtle.width,erase:turtle.pen==='erase'});
+        draw(); await sleep(10);
+      }
+    }
+    async function turn(deg) {
+      const start=turtle.angle, steps=Math.max(1,Math.min(18,Math.ceil(Math.abs(deg)/10)));
+      for(let i=1;i<=steps;i++){turtle.angle=start+deg*i/steps;draw();await sleep(8);}
+    }
+    function tokenize(src) {
+      const clean=src.replace(/;[^\n]*/g,' ').replace(/#[^\n]*/g,' ');
+      return clean.match(/\[|\]|"[^\s\[\]]+|[^\s\[\]]+/gu) || [];
+    }
+    function parse(tokens, nested=false) {
+      const out=[];
+      while(tokens.length){ const raw=tokens.shift(); if(raw===']'){if(!nested)throw Error('Netikėtas ženklas ]');return out;}
+        const name=raw.toLocaleLowerCase('lt-LT');
+        if(name==='kartok'){const n=number(tokens.shift(),'kartok');if(tokens.shift()!=='[')throw Error('Po „kartok“ reikia komandų sąrašo [ ... ]');out.push({name,args:[n],body:parse(tokens,true)});continue;}
+        const counts={priekin:1,atgal:1,'dešinėn':1,'kairėn':1,lauk:1,'pieštuko.storis':1};
+        if(counts[name]) out.push({name,args:[number(tokens.shift(),name)]});
+        else if(name==='pasirink.pieštuko.spalvą') {
+          if(tokens[0]==='['){tokens.shift();const rgb=[];while(tokens.length&&tokens[0]!==']')rgb.push(number(tokens.shift(),name));if(tokens.shift()!==']')throw Error('Neuždarytas spalvos sąrašas');out.push({name,args:[rgb]});}
+          else {if(!tokens.length)throw Error(`Komandai „${raw}“ trūksta spalvos`);out.push({name,args:[tokens.shift().replace(/^"/,'')]});}
+        } else out.push({name,args:[]});
+      }
+      if(nested) throw Error('Neuždarytas komandų sąrašas ]'); return out;
+    }
+    function number(value, command){const n=Number(value);if(value==null||!Number.isFinite(n))throw Error(`Komandai „${command}“ reikia skaičiaus`);return n;}
+    function formatCommand(command, repeatStep='') {
+      if(command.name==='kartok') return `kartok ${repeatStep || command.args[0]} […]`;
+      if(command.name==='pasirink.pieštuko.spalvą') {
+        const value=command.args[0];
+        return `${command.name} ${Array.isArray(value)?`[${value.join(' ')}]`:`"${value}`}`;
+      }
+      return `${command.name}${command.args.length?` ${command.args.join(' ')}`:''}`;
+    }
+    function showExecuting(command, repeatStep='') {
+      if(!command){executionIndicator.classList.remove('active');activeCommand.textContent='';return;}
+      activeCommand.textContent=formatCommand(command,repeatStep);
+      executionIndicator.classList.add('active');
+    }
+    async function execute(list) {
+      for(const c of list){
+        showExecuting(c);
+        if(c.name==='kartok'){
+          if(c.args[0]<0||c.args[0]>1000)throw Error('Kartojimų skaičius turi būti nuo 0 iki 1000');
+          for(let i=0;i<Math.floor(c.args[0]);i++){showExecuting(c,`${i+1}/${Math.floor(c.args[0])}`);await execute(c.body);}
+          continue;
+        }
+        if(c.name==='priekin') await move(c.args[0]);
+        else if(c.name==='atgal') await move(-c.args[0]);
+        else if(c.name==='dešinėn') await turn(c.args[0]);
+        else if(c.name==='kairėn') await turn(-c.args[0]);
+        else if(c.name==='piešim') turtle.pen='down';
+        else if(c.name==='eisim') turtle.pen='up';
+        else if(c.name==='trinsim') turtle.pen='erase';
+        else if(c.name==='valyk') strokes=[];
+        else if(c.name==='valyk.vėžliuko.lauką'){strokes=[];turtle.x=0;turtle.y=0;turtle.angle=0;}
+        else if(c.name==='pradžių.pradžia'){resetState(false);}
+        else if(c.name==='namo'){await moveHome();}
+        else if(c.name==='lauk') await sleep(Math.max(0,Math.min(c.args[0],5000)));
+        else if(c.name==='pieštuko.storis'){turtle.width=Math.max(1,Math.min(30,c.args[0]));}
+        else if(c.name==='pasirink.pieštuko.spalvą'){const v=c.args[0];if(Array.isArray(v)){if(v.length!==3)throw Error('RGB spalvai reikia trijų skaičių');turtle.color=`rgb(${v.map(x=>Math.max(0,Math.min(255,x))).join(',')})`;}else{turtle.color=colors[v.toLocaleLowerCase('lt-LT')]||v;}}
+        else throw Error(`Nežinoma komanda „${c.name}“`);
+        draw();
+      }
+    }
+    async function moveHome(){const dx=-turtle.x,dy=-turtle.y,dist=Math.hypot(dx,dy);if(!dist)return;const old=turtle.angle;turtle.angle=Math.atan2(dx,dy)*180/Math.PI;await move(dist);turtle.angle=old;}
+    async function run(){if(running)return;status.classList.remove('error');try{const program=parse(tokenize(code.value));if(!program.length)throw Error('Komandų laukas tuščias');running=true;runBtn.disabled=true;status.textContent='Vėžliukas vykdo komandas…';await execute(program);save();status.textContent=`Atlikta — ${program.length} komand${program.length===1?'a':'os'}.`;}
+      catch(err){status.textContent=err.message;status.classList.add('error');}
+      finally{running=false;runBtn.disabled=false;showExecuting(null);draw();}}
+
+    function insertCommand(text, cursorOffset=text.length) {
+      const start=Number.isFinite(code.selectionStart)?code.selectionStart:code.value.length;
+      const end=Number.isFinite(code.selectionEnd)?code.selectionEnd:start;
+      const before=code.value.slice(0,start), after=code.value.slice(end);
+      const lineIndent=(before.match(/(?:^|\n)([ \t]*)[^\n]*$/)||[])[1]||'';
+      const prefix=before&&!/\s$/.test(before)?`\n${lineIndent}`:'';
+      const suffix=after&&!/^\s/.test(after)?'\n':'';
+      code.value=before+prefix+text+suffix+after;
+      const cursor=before.length+prefix.length+cursorOffset;
+      code.focus(); code.setSelectionRange(cursor,cursor); save();
+      status.textContent=`Įterpta komanda „${pendingCommand?.dataset.command || text.split(/\s/)[0]}“.`;
+      status.classList.remove('error');
+    }
+    function openCommand(button) {
+      pendingCommand=button;
+      const type=button.dataset.input;
+      if(!type){insertCommand(button.dataset.command);return;}
+      commandTitle.textContent=button.dataset.command;
+      commandLabel.textContent=type==='color'?'Pasirink spalvą':button.dataset.label;
+      commandValue.hidden=type==='color'; colorValue.hidden=type!=='color';
+      if(type!=='color'){commandValue.value=button.dataset.default||'';commandValue.inputMode='decimal';}
+      commandDialog.showModal();
+      requestAnimationFrame(()=>{
+        if(type==='color') colorValue.querySelector('input:checked').focus();
+        else { commandValue.focus(); commandValue.select(); }
+      });
+    }
+    function closeCommand(){commandDialog.close();pendingCommand=null;}
+
+    runBtn.addEventListener('click',run);
+    code.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();run();}});
+    code.addEventListener('input',save);
+    document.querySelectorAll('.command-btn').forEach(b=>b.addEventListener('click',()=>openCommand(b)));
+    commandForm.addEventListener('submit',e=>{
+      e.preventDefault(); if(!pendingCommand)return;
+      const command=pendingCommand.dataset.command, type=pendingCommand.dataset.input;
+      if(type==='color') {
+        const selected=colorValue.querySelector('input:checked');
+        insertCommand(`${command} "${selected.value}`);
+      }
+      else {
+        const value=commandValue.value.trim();
+        if(value===''||!Number.isFinite(Number(value))){commandValue.setCustomValidity('Įrašyk skaičių');commandValue.reportValidity();return;}
+        commandValue.setCustomValidity('');
+        if(type==='repeat'){
+          const start=Number.isFinite(code.selectionStart)?code.selectionStart:code.value.length;
+          const before=code.value.slice(0,start);
+          const indent=(before.match(/(?:^|\n)([ \t]*)[^\n]*$/)||[])[1]||'';
+          const text=`kartok ${value} [\n${indent}  \n${indent}]`;
+          insertCommand(text,`kartok ${value} [\n${indent}  `.length);
+        }
+        else insertCommand(`${command} ${value}`);
+      }
+      commandDialog.close(); pendingCommand=null;
+    });
+    commandDialog.querySelector('.close').addEventListener('click',closeCommand);
+    commandDialog.querySelector('.cancel').addEventListener('click',closeCommand);
+    commandDialog.addEventListener('click',e=>{if(e.target===commandDialog)closeCommand();});
+    document.querySelector('#helpBtn').addEventListener('click',()=>help.showModal());
+    help.querySelector('.close').addEventListener('click',()=>help.close());
+    help.addEventListener('click',e=>{if(e.target===help)help.close();});
+    document.querySelector('#resetBtn').addEventListener('click',()=>{resetState(false);status.textContent='Lapas švarus. Vėžliukas grįžo į pradžią.';status.classList.remove('error');});
+    new ResizeObserver(fitCanvas).observe(canvas);
+    load(); fitCanvas();
+  })();
+  </script>
+</body>
+</html>
