@@ -16,13 +16,13 @@
         <div><h1>Honmoon Encore</h1><p class="tagline">HUNTR/X · K-Pop Demon Hunters</p></div>
       </div>
       <div class="header-actions">
-        <div class="audio-help" id="audioHelp" role="status" hidden>
-          <p id="audioNotice">Music did not start. Press Play here or allow audio for this page.</p>
-          <audio id="musicPlayer" src="music.wav" preload="auto" controls loop></audio>
-        </div>
         <button class="icon-btn" id="pickerBtn" type="button" title="Return to home screen">Home</button>
         <button class="icon-btn" id="soundBtn" type="button" aria-label="Turn sound off" title="Sound">♪</button>
         <button class="icon-btn" id="pauseBtn" type="button" aria-label="Pause game" title="Pause">Ⅱ</button>
+      </div>
+      <div class="audio-help" id="audioHelp" role="status" hidden>
+        <p id="audioNotice">Music did not start. Press Play here or allow audio for this page.</p>
+        <audio id="musicPlayer" src="music.wav" preload="auto" controls loop></audio>
       </div>
     </header>
 
@@ -111,13 +111,6 @@
       </aside>
     </section>
 
-    <div class="mobile-controls" aria-label="Touch controls">
-      <button class="control" data-action="left" aria-label="Move left">←</button>
-      <button class="control" data-action="rotate" aria-label="Rotate">↻</button>
-      <button class="control" data-action="down" aria-label="Move down">↓</button>
-      <button class="control" data-action="right" aria-label="Move right">→</button>
-      <button class="control" data-action="drop" aria-label="Drop">⇊</button>
-    </div>
     <div class="footer">The show goes on · progress stays in this browser</div>
   </main>
 

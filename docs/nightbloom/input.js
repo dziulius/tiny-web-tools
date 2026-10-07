@@ -77,29 +77,7 @@ export function createInput({getMode, onAction}) {
     gamepadState.set(gamepadIndex, next);
   }
 
-  function bindTouchControls() {
-    const touchActions = {
-      left: 'left',
-      right: 'right',
-      down: 'down',
-      rotate: 'rotate-clockwise',
-      drop: 'drop'
-    };
-
-    for (const button of document.querySelectorAll('[data-action]')) {
-      button.addEventListener('pointerdown', event => {
-        event.preventDefault();
-        const action = touchActions[button.dataset.action];
-
-        if (action) {
-          onAction(action);
-        }
-      });
-    }
-  }
-
   window.addEventListener('keydown', handleKeyDown);
-  bindTouchControls();
   animationFrame = requestAnimationFrame(pollGamepads);
 
   return function destroyInput() {
