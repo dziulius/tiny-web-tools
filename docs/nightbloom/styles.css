@@ -668,7 +668,8 @@
       .board-frame {
         grid-column: 1 / -1;
         grid-row: 2;
-        width: min(100%, 370px);
+        /* Leave room for the header and score/next-note row above the board. */
+        width: min(100%, 370px, calc(50svh - 103px));
         margin: 30px auto 0;
         padding: 7px;
       }
