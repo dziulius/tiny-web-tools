@@ -624,6 +624,11 @@
         display: block;
         padding: 10px 10px calc(16px + env(safe-area-inset-bottom));
       }
+      body:not(.setup-mode) .app {
+        height: 100svh;
+        min-height: 0;
+        overflow: hidden;
+      }
       header { flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
       .brand { min-width: 0; gap: 8px; }
       .brand-mark { width: 36px; height: 36px; }
@@ -653,13 +658,23 @@
       .panel.right { display: contents; }
       .specimen-tray { display: none; }
       .card { padding: 10px 12px; border-radius: 6px; }
-      .score-board { height: 100%; gap: 7px; }
-      .score-board > div + div { padding-top: 7px; }
+      .score-board {
+        height: 80px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: center;
+        gap: 4px;
+        padding: 6px;
+      }
+      .score-board > div + div {
+        padding: 0 0 0 5px;
+        border-top: 0;
+        border-left: 2px solid rgba(197, 153, 255, .28);
+      }
       .score-board .eyebrow { font-size: 9px; }
-      .score-readout { font-size: clamp(19px, 6vw, 27px); }
+      .score-readout { font-size: clamp(14px, 3.5vw, 20px); }
       .performance-card { grid-column: 2; grid-row: 1; min-width: 0; }
       .performance-card > .eyebrow { margin-bottom: 5px; font-size: 9px; }
-      .performance-window { height: 82px; border-width: 2px; }
+      .performance-window { height: 65px; border-width: 2px; }
       .performance-window .spotlight,
       .performance-window .performer,
       .performance-window::after,
@@ -668,16 +683,16 @@
       .board-frame {
         grid-column: 1 / -1;
         grid-row: 2;
-        /* Leave room for the header and score/next-note row above the board. */
-        width: min(100%, 370px, calc(50svh - 103px));
+        width: max-content;
+        max-width: 100%;
         margin: 30px auto 0;
         padding: 7px;
       }
       .board-frame::before { top: -34px; height: 34px; }
       .board-label { top: -27px; }
       #gameCanvas {
-        width: 100%;
-        height: auto;
+        width: auto;
+        height: min(calc(100svh - 340px - env(safe-area-inset-bottom)), calc(200vw - 148px));
         max-width: none;
         max-height: none;
         aspect-ratio: 1 / 2;
@@ -694,7 +709,7 @@
       .run-board > div + div { padding: 0; border: 0; }
       .run-board .eyebrow { font-size: 9px; }
       .run-board strong { font-size: clamp(13px, 4vw, 18px); }
-      .status-note { grid-column: 1 / -1; grid-row: 4; }
+      .status-note { display: none; }
       .footer { display: none; }
       body.setup-mode .game-shell { display: block; padding: 0; }
       body.setup-mode .panel.right { display: none; }
