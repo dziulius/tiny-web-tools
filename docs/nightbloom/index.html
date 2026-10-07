@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#100b25">
+  <meta name="description" content="Honmoon Encore — a K-Pop Demon Hunters inspired falling-note puzzle.">
+  <title>Honmoon Encore — K-Pop Demon Hunters Puzzle</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="setup-mode">
+  <main class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div><h1>Honmoon Encore</h1><p class="tagline">HUNTR/X · K-Pop Demon Hunters</p></div>
+      </div>
+      <div class="header-actions">
+        <div class="audio-help" id="audioHelp" role="status" hidden>
+          <p id="audioNotice">Music did not start. Press Play here or allow audio for this page.</p>
+          <audio id="musicPlayer" src="music.wav" preload="auto" controls loop></audio>
+        </div>
+        <button class="icon-btn" id="pickerBtn" type="button" title="Return to home screen">Home</button>
+        <button class="icon-btn" id="soundBtn" type="button" aria-label="Turn sound off" title="Sound">♪</button>
+        <button class="icon-btn" id="pauseBtn" type="button" aria-label="Pause game" title="Pause">Ⅱ</button>
+      </div>
+    </header>
+
+    <section class="game-shell" aria-label="Honmoon Encore game">
+      <aside class="panel left" aria-label="Game statistics">
+        <div class="card score-board">
+          <div><p class="eyebrow">Best</p><div class="score-readout best" id="best">0</div></div>
+          <div><p class="eyebrow">Score</p><div class="score-readout" id="score">0</div></div>
+        </div>
+        <div class="card specimen-tray" aria-label="Demon breaches">
+          <p class="eyebrow">Demon breaches</p>
+          <div class="tray-window" aria-hidden="true">
+            <i class="tray-blight"></i><i class="tray-blight"></i><i class="tray-blight"></i>
+          </div>
+          <p class="tray-caption">These breaches stay fixed. Seal them with a line of four matching notes.</p>
+        </div>
+      </aside>
+
+      <div class="board-frame">
+        <div class="board-label">Honmoon // live seal</div>
+        <canvas id="gameCanvas" width="256" height="512" aria-label="Honmoon puzzle board" role="img"></canvas>
+        <div class="overlay" id="overlay">
+          <div class="overlay-inner">
+            <div class="overlay-kicker" id="overlayKicker">HUNTR/X // Encore</div>
+            <h2 id="overlayTitle">Protect the Honmoon.</h2>
+            <p id="overlayText">The Saja Boys have weakened the Honmoon. Match four notes in a line to seal every demon breach.</p>
+            <div class="setup" id="setupPanel">
+              <div class="setup-row active" data-setup-row="0">
+                <div class="setup-label"><span>Starting stage</span><output class="option-value" id="levelOutput">1</output></div>
+                <input id="levelInput" type="hidden" value="1">
+                <div class="level-track" id="levelTrack" aria-hidden="true"></div>
+              </div>
+              <div class="setup-row" data-setup-row="1">
+                <div class="setup-label"><span>Tempo</span></div>
+                <div class="choice-options" aria-label="Tempo">
+                  <button class="choice-option" data-speed="low" type="button">Low</button>
+                  <button class="choice-option active" data-speed="medium" type="button">Medium</button>
+                  <button class="choice-option" data-speed="high" type="button">High</button>
+                </div>
+              </div>
+              <div class="setup-row" data-setup-row="2">
+                <div class="setup-label"><span>Sound</span></div>
+                <div class="choice-options" aria-label="Audio style">
+                  <button class="choice-option active" data-audio="bright" type="button">Bright</button>
+                  <button class="choice-option" data-audio="soft" type="button">Soft</button>
+                  <button class="choice-option" data-audio="off" type="button">Off</button>
+                </div>
+                <div class="track-options">
+                  <label class="track-picker">
+                    Choose a movie song
+                    <input id="trackInput" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg">
+                  </label>
+                  <button class="track-reset" id="resetTrackBtn" type="button" hidden>Built-in loop</button>
+                </div>
+                <p class="track-name" id="trackName">Music: built-in loop</p>
+              </div>
+              <p class="tray-caption">↑/↓ select · ←/→ adjust · Enter or A/× start</p>
+            </div>
+            <div class="overlay-actions">
+              <button class="primary" id="startBtn" type="button">Start the show</button>
+              <button class="secondary" id="restartBtn" type="button" hidden>Restart</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel right" aria-label="Run information">
+        <div class="performance-card">
+          <p class="eyebrow">HUNTR/X on stage</p>
+          <div class="performance-window" aria-hidden="true">
+            <div class="spotlight spotlight-left"></div>
+            <div class="spotlight spotlight-right"></div>
+            <div class="performer performer-mira"><i class="performer-hair"></i><i class="performer-head"></i><i class="performer-body"></i><i class="performer-mic"></i></div>
+            <div class="performer performer-rumi"><i class="performer-hair"></i><i class="performer-head"></i><i class="performer-body"></i><i class="performer-mic"></i></div>
+            <div class="performer performer-zoey"><i class="performer-hair"></i><i class="performer-head"></i><i class="performer-body"></i><i class="performer-mic"></i></div>
+            <canvas id="nextCanvas" width="140" height="84"></canvas>
+          </div>
+          <div class="next-copy"><strong>Next harmony</strong><span>Rumi · Mira · Zoey</span></div>
+        </div>
+        <div class="card run-board">
+          <div><p class="eyebrow">Stage</p><strong id="levelDisplay">1</strong></div>
+          <div><p class="eyebrow">Tempo</p><strong id="speedDisplay">Medium</strong></div>
+          <div><p class="eyebrow">Breaches</p><strong id="blights">0</strong></div>
+        </div>
+        <div class="card status-note" id="status" aria-live="polite"><strong>Tip:</strong> notes settle after every harmony. Chains can seal more breaches.</div>
+      </aside>
+    </section>
+
+    <div class="mobile-controls" aria-label="Touch controls">
+      <button class="control" data-action="left" aria-label="Move left">←</button>
+      <button class="control" data-action="rotate" aria-label="Rotate">↻</button>
+      <button class="control" data-action="down" aria-label="Move down">↓</button>
+      <button class="control" data-action="right" aria-label="Move right">→</button>
+      <button class="control" data-action="drop" aria-label="Drop">⇊</button>
+    </div>
+    <div class="footer">The show goes on · progress stays in this browser</div>
+  </main>
+
+  <script defer src="game.js"></script>
+</body>
+</html>
