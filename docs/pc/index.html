@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kompiuterių konfigūracijos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg:#f5f6f8; --card:#ffffff; --fg:#1d2430; --muted:#6b7380; --line:#e7e9ee; --head:#f9fafb;
+  --link:#1f5fd6; --accent:#1f5fd6; --accent-bg:#e8f0fe;
+  --ok:#1e7a34; --ok-bg:#e7f6ea; --over:#b42318; --over-bg:#fdecea;
+}
+* { box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font:15px/1.5 Inter, system-ui, sans-serif; margin:0; padding:28px 16px 64px; }
+main { margin:0 auto; }
+header h1 { font-size:26px; font-weight:700; margin:0 0 4px; letter-spacing:-0.01em; }
+header p { color:var(--muted); margin:0 0 20px; }
+h2 { font-size:18px; font-weight:600; margin:0 0 4px; }
+.sub { color:var(--muted); font-size:14px; margin:0 0 14px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:20px; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+.wrap { overflow-x:auto; }
+table { border-collapse:collapse; width:100%; }
+th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+th { background:var(--head); font-weight:600; font-size:13px; color:var(--muted); white-space:nowrap; }
+td.num, th.num { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+td.part { color:var(--muted); white-space:nowrap; width:190px; }
+tr.total td { font-weight:700; font-size:16px; border-bottom:none; background:var(--head); }
+tr.sub td { color:var(--muted); }
+a { color:var(--link); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.note { color:var(--muted); font-size:13px; margin:12px 0 0; }
+.badge { display:inline-block; font-size:12px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+.ok { background:var(--ok-bg); color:var(--ok); }
+.over { background:var(--over-bg); color:var(--over); }
+.shop { display:inline-block; font-size:12px; font-weight:600; padding:2px 8px; border-radius:6px; white-space:nowrap; }
+.s-sky { background:#e7f6ea; color:#1e7a34; }
+.s-kb { background:#e8f0fe; color:#1f5fd6; }
+.s-amz { background:#fff3e0; color:#b25e00; }
+.s-ark { background:#f3e8fd; color:#7b2fbf; }
+.s-varle { background:#e6f7f5; color:#0f7a6c; }
+.s-1a { background:#fdecea; color:#b42318; }
+
+/* summary cards with checkboxes */
+.summary { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:12px; margin-bottom:20px; }
+.sum { position:relative; display:block; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; cursor:pointer; user-select:none; transition:opacity .15s, border-color .15s; }
+.sum.on { border-color:#b9cdf5; box-shadow:0 0 0 1px #b9cdf5; }
+.sum:not(.on) { opacity:.5; }
+.sum input { position:absolute; top:14px; right:14px; width:18px; height:18px; accent-color:var(--accent); margin:0; cursor:pointer; }
+.sum .name { font-weight:600; margin-bottom:2px; padding-right:26px; }
+.sum .spec { color:var(--muted); font-size:13px; min-height:38px; }
+.sum .price { font-size:24px; font-weight:700; margin-top:8px; }
+.sum .rel { font-size:13px; color:var(--accent); font-weight:600; margin-top:2px; }
+.sum.cur { background:#fbfcfe; }
+.actions { display:flex; gap:8px; flex-wrap:wrap; }
+button { font:inherit; font-size:13px; border:1px solid var(--line); background:var(--card); border-radius:8px; padding:6px 12px; cursor:pointer; color:var(--fg); }
+button:hover { background:var(--head); }
+button.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+.seg { display:inline-flex; gap:0; }
+.seg button { border-radius:0; }
+.seg button:first-child { border-radius:8px 0 0 8px; }
+.seg button:last-child { border-radius:0 8px 8px 0; border-left:none; }
+
+/* tables */
+.perf td.best { font-weight:700; color:var(--ok); }
+.perf th.grp { text-align:center; color:var(--fg); white-space:normal; min-width:120px; }
+.perf th.grp .hw { font-weight:400; color:var(--muted); font-size:12px; }
+.perf tr.rel td { font-weight:600; color:var(--accent); }
+h3 { font-size:15px; font-weight:600; margin:18px 0 8px; }
+.perf td.est::after { content:""; }
+details.build { background:var(--card); border:1px solid var(--line); border-radius:14px; margin-bottom:12px; }
+details.build > summary { list-style:none; cursor:pointer; padding:16px 20px; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; }
+details.build > summary::-webkit-details-marker { display:none; }
+details.build > summary::before { content:"▸"; color:var(--muted); margin-right:2px; }
+details.build[open] > summary::before { content:"▾"; }
+details.build .t { font-weight:600; font-size:16px; }
+details.build .s { color:var(--muted); font-size:14px; }
+details.build .pr { margin-left:auto; font-weight:700; font-size:16px; }
+details.build .body { padding:0 20px 18px; }
+@media (max-width:600px) { td.part { width:auto; white-space:normal; } .card { padding:14px; } details.build .pr { margin-left:0; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Žaidimų kompiuterio konfigūracijos</h1>
+<p>Biudžetas 1500 EUR. Kainos patikrintos 2026-11-13. Amazon.de kainos su pristatymu į Lietuvą (nemokamas). 1a.lt kainos – su lojalumo kortele; pristatymas į paštomatą 2,49 EUR.</p>
+</header>
+
+<div class="actions" style="margin-bottom:12px">
+  <span class="sub" style="margin:0;align-self:center">Pažymėkite konfigūracijas, kurias norite lyginti lentelėse žemiau.</span>
+  <button type="button" id="all">Rodyti visas</button>
+  <button type="button" id="budget">Tik iki ~1550 EUR</button>
+  <button type="button" id="none">Slėpti visas</button>
+</div>
+<div class="summary" id="toggles"></div>
+
+<section class="card">
+<h2>Apytikslis našumas žaidimuose</h2>
+<p class="sub">Vidutinis kadrų skaičius per sekundę (FPS). Geriausias kiekvieno žaidimo rezultatas paryškintas.</p>
+<h3>1080p (Full HD monitorius)</h3>
+<div class="wrap"><table class="perf" id="perf1080"></table></div>
+<h3>1440p (2K monitorius)</h3>
+<div class="wrap"><table class="perf" id="perf1440"></table></div>
+<p class="note">Tai apytiksliai įvertinimai, ne matavimai. Išmatuoti tik šie skaičiai: Call of Duty BO7 1440p rezultatai (RX 9070 GRE 154 FPS, RTX 5060 Ti 16GB 98 FPS, ComputerBase), RX 9060 XT ~10 % greitesnė už RTX 5060 (GamersNexus), RX 9070 GRE ~30 % greitesnė už RX 9060 XT ir ~26 % už RTX 5060 Ti 16GB 1440p raiška (ComputerBase, KitGuru). RTX 5070 laikyta ~10 % greitesne už RX 9070 GRE. LoL, Valorant ir CS2 labiau riboja procesorius. RX 9070 GRE yra apkarpyta RX 9070 versija: 12 GB atminties vietoje 16 GB.</p>
+</section>
+
+<section>
+<h2 style="margin:28px 0 12px">Dalių sąrašai</h2>
+<div id="builds"></div>
+</section>
+</main>
+
+<script>
+const BUDGET = 1500;
+const SHOPS = { sky:'skytech.lt', kb:'kilobaitas.lt', amz:'amazon.de', ark:'arkprekyba.lt', varle:'varle.lt', '1a':'1a.lt' };
+
+const P = {
+  // ARK prekyba pasiūlymas
+  ark_cpu:  { t:'Procesorius', n:'AMD Ryzen 5 5600 Box (100-100000927BOX)', s:'ark', p:144.39, u:'https://arkprekyba.lt/procesoriai-cpu/381214-amd-ryzen-5-5600-35-ghz-am4-processor-threads-12-packing-retail-processor-cores-6-component-for-desktop.html' },
+  ark_mb:   { t:'Pagrindinė plokštė', n:'Gigabyte B550M DS3H AC R2', s:'ark', p:117.96, u:'https://arkprekyba.lt/pagrindines-plokstes/494195-gigabyte-b550m-ds3h-ac-r2.html' },
+  ark_ram:  { t:'Operatyvioji atmintis', n:'G.Skill Flare X 32GB DDR4-3200 CL16 (F4-3200C16D-32GFX)', s:'ark', p:295.21, u:'https://arkprekyba.lt/operatyvioji-atmintis-ram/502844-gskill-flare-x-32-gb-ddr4-3200-mhz-pc-server-registered-no-ecc-no.html' },
+  ark_ssd:  { t:'SSD diskas', n:'Kingston NV3 1TB (SNV3S/1000G)', s:'ark', p:167.84, u:'https://arkprekyba.lt/ssd-kietieji-diskai/478343-kingston-1000g-nv3-m2-2280-pcie-40-ssd-740617344790.html' },
+  ark_gpu:  { t:'Vaizdo plokštė', n:'Gigabyte GeForce RTX 5060 Windforce MAX OC V2 8GB', s:'ark', p:553.42, u:'https://arkprekyba.lt/vaizdo-plokstes/522035-gigabyte-geforce-rtx-5060-windforce-max-oc-v2-8g.html', b:'pasiūlyme – Windforce OC 8GB, jos svetainėje nėra' },
+  ark_case: { t:'Korpusas', n:'Deepcool CH370 (R-CH370-BKNAM1-G-1)', s:'ark', p:50.98, u:'https://arkprekyba.lt/korpusai/514885-deepcool-ch370-side-window-black-micro-atx-atx-ps2.html' },
+  ark_psu:  { t:'Maitinimo blokas', n:'Gigabyte UD850GM PG5 V2 850W', s:'ark', p:105.39, u:'https://arkprekyba.lt/korpusu-maitinimo-saltiniai/506493-power-supplygigabyteud850gm-pg5-v2atx-31850-wattsefficiency-80-plus-goldpfc-activemtbf-100000-hoursgp-ud850gmpg5v2-4719331555993.html' },
+  ark_cool: { t:'Aušintuvas', n:'Arctic Freezer 36 (ACFRE00121A)', s:'ark', p:23.72, u:'https://arkprekyba.lt/ausintuvai-termo-pasta/496181-cpu-cooler-smulti-acfre00121a-arctic-4895213704120.html' },
+
+  // procesoriai
+  cpu_5600:   { t:'Procesorius', n:'AMD Ryzen 5 5600 Box (100-100000927BOX)', s:'sky', p:138.19, u:'https://www.skytech.lt/100100000927box-amd-ryzen-6c12t-5600-3642ghz-36mb-65w-am4-box-amd-wraith-stealth-p-587652.html' },
+  cpu_5700x:  { t:'Procesorius', n:'AMD Ryzen 7 5700X (Tray, be aušintuvo)', s:'sky', p:153.79, u:'https://www.skytech.lt/100000000926-amd-cpu-desktop-ryzen-8c16t-5700x-3446ghz-boost36mb65wam4-tray-gamy-p-705592.html' },
+  cpu_7500f:  { t:'Procesorius', n:'AMD Ryzen 5 7500F (Tray, be aušintuvo)', s:'kb', p:128.30, u:'https://www.kilobaitas.lt/kompiuteriai_ir_komponentai/kompiuteriu_komponentai/procesoriai_cpu/cpuamd7500famd_ryzen_5desktopamd_ryzent_57500f_37_ghz6xcorescache_32_mbsocket_socket_am5tdp_65_wtray100-00000059/product.aspx?itemid=891257' },
+  cpu_14400f: { t:'Procesorius', n:'Intel Core i5-14400F (Tray, be aušintuvo)', s:'kb', p:142.25, u:'https://www.kilobaitas.lt/kompiuteriai_ir_komponentai/kompiuteriu_komponentai/procesoriai_cpu/intel_core_i5-14400f_25ghz_lga1700_tray__cm8071504821113/product.aspx?itemid=887938' },
+
+  // pagrindinės plokštės
+  mb_b550ds3h: { t:'Pagrindinė plokštė', n:'Gigabyte B550M DS3H AC R2', s:'varle', p:102.06, u:'https://www.varle.lt/pagrindines-plokstes/pagrindine-plokste-gigabyte-b550m-ds3h-ac-r2-am4--45593519.html' },
+  mb_b550mp:   { t:'Pagrindinė plokštė', n:'MSI PRO B550M-P WIFI6E', s:'sky', p:114.69, u:'https://www.skytech.lt/pro-b550mp-wifi6e-msi-pro-b550mp-wifi6e-pagrindine-plokste-p-850616.html' },
+  mb_b650m:    { t:'Pagrindinė plokštė', n:'Gigabyte B650M Gaming Plus WIFI', s:'sky', p:121.59, u:'https://www.skytech.lt/b650m-gaming-plus-mainboardgigabyteamd-b650socket-am5micro-atxram-ddr5sdram4xslo-p-798172.html' },
+  mb_b760m:    { t:'Pagrindinė plokštė', n:'ASUS Prime B760M-A WIFI D4', s:'1a', p:129.90, u:'https://www.1a.lt/p/pagrindine-plokste-asus-prime-b760m-a-wifi-d4/iteu', b:'su 1a kortele', bo:1 },
+
+  // atmintis
+  ram_tz32:   { t:'Operatyvioji atmintis', n:'G.Skill Trident Z RGB 32GB (2x16) DDR4-3600 CL18', s:'sky', p:273.90, u:'https://www.skytech.lt/f43600c18d32gtzr-gskill-trident-rgb-ddr4-32gb-3600mhz-cl18-f43600c18d32gtzr-p-599223.html' },
+  ram_aegis32:{ t:'Operatyvioji atmintis', n:'G.Skill Aegis 32GB (2x16) DDR4-3200 CL16', s:'amz', p:269.98, u:'https://www.amazon.de/dp/B07YV6DKJK' },
+  ram_rip16:  { t:'Operatyvioji atmintis', n:'G.Skill Ripjaws V 16GB (2x8) DDR4-3600 CL16', s:'sky', p:158.39, u:'https://www.skytech.lt/f43600c16d16gvkc-gskill-ripjawsv-ddr4-16gb-2x8gb-3600mhz-cl16-135v-xmp-p-515961.html' },
+  ram_ddr5:   { t:'Operatyvioji atmintis', n:'Corsair Vengeance 16GB (2x8) DDR5-6000 CL36', s:'kb', p:305.40, u:'https://www.kilobaitas.lt/kompiuteriai_ir_komponentai/kompiuteriu_komponentai/operatyvine_atmintis_ram/corsair_ddr5_6000mts_16gb_2x8gb_dimm__cmk16gx5m2e6000z36/product.aspx?itemid=1185458' },
+
+  // SSD
+  ssd_nv3: { t:'SSD diskas', n:'Kingston NV3 1TB (SNV3S/1000G)', s:'1a', p:147.74, u:'https://www.1a.lt/p/kietasis-diskas-ssd-kingston-snv3s-1000g-m-2-2280-1-tb/sl0c', b:'su 1a kortele', bo:1 },
+  ssd_990: { t:'SSD diskas', n:'Samsung 990 1TB NVMe (MZ-V9V1T0BW)', s:'amz', p:167.67, u:'https://www.amazon.de/dp/B0H3C6XHGK' },
+
+  // vaizdo plokštės
+  gpu_5060:   { t:'Vaizdo plokštė', n:'Gigabyte GeForce RTX 5060 Windforce OC 8GB (GV-N5060WF2OC-8GD)', s:'sky', p:509.00, u:'https://www.skytech.lt/gvn5060wf2oc8gd-gigabyte-geforce-rtx-5060-windforce-8gb-gddr7-3xdp-1xhdmi-p-775654.html', b:'liko 1 vnt.' },
+  gpu_gre:    { t:'Vaizdo plokštė', n:'XFX Swift Radeon RX 9070 GRE 12GB', s:'kb', p:699.00, u:'https://www.kilobaitas.lt/kompiuteriai_ir_komponentai/kompiuteriu_komponentai/vaizdo_plokstes_gpu/xfx_swift_amd_radeon_rx_9070_gre_triple_90mm_fan_gaming_12gb_gddr6_192bit_2790mhz__18gbps_hdmi_3xdp_amd_rdna/product.aspx?itemid=1237497', b:'liko 3 vnt.' },
+  gpu_5060ti: { t:'Vaizdo plokštė', n:'ASUS Dual GeForce RTX 5060 Ti OC 16GB', s:'sky', p:859.00, u:'https://www.skytech.lt/90yv0mh0m0na00-asus-dual-rtx-5060-16gb-p-773451.html' },
+  gpu_5070s:  { t:'Vaizdo plokštė', n:'Gigabyte GeForce RTX 5070 Windforce OC SFF 12GB', s:'1a', p:939.00, u:'https://www.1a.lt/p/vaizdo-plokste-gigabyte-geforce-rtx-5070-windforce-oc-sff-12-gb-gddr7/uvor' },
+  gpu_5070:   { t:'Vaizdo plokštė', n:'Gigabyte GeForce RTX 5070 Gaming OC 12GB', s:'amz', p:934.82, u:'https://www.amazon.de/dp/B0DTGNTQ3C' },
+
+  // korpusai, maitinimas, aušinimas
+  case_ch370s: { t:'Korpusas', n:'Deepcool CH370 (R-CH370-BKNAM1-G-1)', s:'sky', p:45.49, u:'https://www.skytech.lt/rch370bknam1g1-deepcool-ch370-side-window-micro-atx-atx-ps2-black-p-615157.html' },
+  case_ch370k: { t:'Korpusas', n:'Deepcool CH370', s:'kb', p:44.65, u:'https://www.kilobaitas.lt/kompiuteriai_ir_komponentai/kompiuteriu_komponentai/korpusai_ir_priedai_case/korpusai/deepcool__ch370__side_window__micro_atx__atx_ps2__black__r-ch370-bknam1-g-1/product.aspx?itemid=752306', b:'liko 2 vnt.' },
+  case_cc560:  { t:'Korpusas', n:'Deepcool CC560 MESH V2, ATX (su 4 įmontuotais ventiliatoriais)', s:'sky', p:67.49, u:'https://www.skytech.lt/rcc560bkama4g2-deepcool-cc560-mesh-mid-tower-atx-ps2-black-p-755239.html' },
+  psu_ud850:   { t:'Maitinimo blokas', n:'Gigabyte UD850GM PG5 V2 850W', s:'1a', p:77.65, u:'https://www.1a.lt/p/maitinimo-blokas-gigabyte-ultra-durable-ud850gm-pg5-v2-850-w-12-cm/wiat', b:'su 1a kortele', bo:1 },
+  psu_rm750e:  { t:'Maitinimo blokas', n:'Corsair RM750e 750W', s:'kb', p:123.90, u:'https://www.kilobaitas.lt/kompiuteriai_ir_komponentai/kompiuteriu_komponentai/maitinimo_blokai_psu/corsair_rme_series_rm750e_750_watt_atx__cp-9020295-eu/product.aspx?itemid=1133599' },
+  cool_f36:    { t:'Aušintuvas', n:'Arctic Freezer 36 (ACFRE00121A)', s:'sky', p:22.99, u:'https://www.skytech.lt/4895213704120-cpu-cooler-smultiacfre00121a-arctic-p-723777.html' },
+  fans:        { t:'Korpuso ventiliatoriai', n:'Arctic BioniX P12 ARGB 120mm, 3 vnt. (ACFAN00337A)', s:'sky', p:32.79, u:'https://www.skytech.lt/acfan00337a-case-fan-120mm-bionix-p12-argb3pack-acfan00337a-arctic-p-839570.html' },
+};
+
+const CHEAP = ['cpu_5600','mb_b550ds3h','ram_tz32','ssd_nv3','gpu_5060','case_ch370s','psu_ud850','cool_f36','fans'];
+const swap = (list, from, to) => list.map(x => x === from ? to : x);
+const INTEL = ['cpu_14400f','mb_b760m','ram_aegis32','ssd_990','gpu_gre','case_cc560','psu_rm750e','cool_f36'];
+
+// FPS: [1080p, 1440p]; žaidimų tvarka atitinka GAMES
+const GAMES = ['League of Legends (maks.)','Valorant (maks.)','Counter-Strike 2 (aukšti)','Apex Legends (maks.)','Fortnite (Epic, be RT)','Marvel Rivals (Ultra)','Call of Duty: BO7 (Extreme, DLSS/FSR Quality)'];
+const F_5060   = [[300,300],[350,330],[280,200],[180,130],[110,75],[85,60],[105,85]];
+const F_5600G  = [[300,300],[350,340],[290,255],[225,185],[150,110],[115,85],[170,150]];
+const F_5600TI = [[300,300],[350,330],[285,225],[205,150],[125,86],[98,69],[125,95]];
+const F_5600_70= [[300,300],[350,335],[295,270],[235,205],[165,120],[125,95],[175,150]];
+const F_INTEL  = [[300,300],[400,380],[330,280],[230,185],[150,110],[115,85],[180,154]];
+const F_AM4    = [[300,300],[360,350],[300,260],[230,185],[150,110],[115,85],[180,154]];
+const F_AM5    = [[300,300],[430,400],[340,285],[235,185],[150,110],[115,85],[185,154]];
+const F_INT70  = [[300,300],[400,380],[340,300],[250,205],[165,120],[125,95],[185,155]];
+const MEASURED = { gpu_gre:154, gpu_5060ti:98 }; // CoD BO7 1440p, ComputerBase
+
+const B = [
+  { id:'ark', name:'Dabartinė (ARK prekyba)', cur:true, cpu:'R5 5600', gpu:'RTX 5060 8GB', ram:'32 GB DDR4-3200', parts:['ark_cpu','ark_mb','ark_ram','ark_ssd','ark_gpu','ark_case','ark_psu','ark_cool'], quote:1505, rel:[0,0], fps:F_5060,
+    note:'Pasiūlymas 2026-10-27; dalių kainos – iš arkprekyba.lt svetainės. Surinkimas su OS diegimu – papildomai 50 EUR. Korpuse yra tik vienas galinis ventiliatorius.' },
+  { id:'cheap', name:'Tos pačios dalys pigiau', cur:true, cpu:'R5 5600', gpu:'RTX 5060 8GB', ram:'32 GB DDR4-3600', parts:CHEAP, rel:[0,0], fps:F_5060,
+    note:'Tos pačios dalys kaip ARK pasiūlyme, tik greitesnė ir pigesnė DDR4-3600 atmintis bei 3 papildomi korpuso ventiliatoriai. Kiekviena dalis – iš pigiausios parduotuvės.' },
+  { id:'5600gre', name:'R5 5600 + RX 9070 GRE', cpu:'R5 5600', gpu:'RX 9070 GRE 12GB', ram:'32 GB DDR4-3600', parts:swap(CHEAP,'gpu_5060','gpu_gre'), rel:[35,45], fps:F_5600G,
+    note:'RX 9070 GRE (301 mm) telpa į Deepcool CH370 (iki 320 mm).' },
+  { id:'5600ti', name:'R5 5600 + RTX 5060 Ti 16GB', cpu:'R5 5600', gpu:'RTX 5060 Ti 16GB', ram:'32 GB DDR4-3600', parts:swap(CHEAP,'gpu_5060','gpu_5060ti'), rel:[15,15], fps:F_5600TI,
+    note:'RTX 5060 Ti 16GB ~26 % lėtesnė už RX 9070 GRE 1440p raiška, bet 160 EUR brangesnė.' },
+  { id:'5600_70', name:'R5 5600 + RTX 5070', cpu:'R5 5600', gpu:'RTX 5070 12GB', ram:'32 GB DDR4-3600', parts:swap(CHEAP,'gpu_5060','gpu_5070s'), rel:[50,60], fps:F_5600_70,
+    note:'Kompaktiška SFF versija, skirta mažiems korpusams. Ar ji telpa į CH370 (iki 320 mm), nepatikrinta.' },
+  { id:'intel', name:'Intel', cpu:'i5-14400F', gpu:'RX 9070 GRE 12GB', ram:'32 GB DDR4-3200', parts:INTEL, rel:[35,45], fps:F_INTEL },
+  { id:'intel16', name:'Intel, 16 GB', cpu:'i5-14400F', gpu:'RX 9070 GRE 12GB', ram:'16 GB DDR4-3600', parts:swap(INTEL,'ram_aegis32','ram_rip16'), rel:[35,45], fps:F_INTEL,
+    note:'Šiuose žaidimuose 16 GB veiks taip pat kaip 32 GB.' },
+  { id:'am4', name:'AM4', cpu:'R7 5700X', gpu:'RX 9070 GRE 12GB', ram:'32 GB DDR4-3600', parts:['cpu_5700x','mb_b550mp','ram_tz32','ssd_990','gpu_gre','case_ch370k','psu_rm750e','cool_f36','fans'], rel:[35,45], fps:F_AM4 },
+  { id:'am5', name:'AM5', cpu:'R5 7500F', gpu:'RX 9070 GRE 12GB', ram:'16 GB DDR5-6000', parts:['cpu_7500f','mb_b650m','ram_ddr5','ssd_990','gpu_gre','case_ch370k','psu_rm750e','cool_f36','fans'], rel:[35,45], fps:F_AM5,
+    note:'32 GB DDR5 kainuoja apie 550 EUR, todėl tik 16 GB.' },
+  { id:'intel70', name:'Intel + RTX 5070', cpu:'i5-14400F', gpu:'RTX 5070 12GB', ram:'32 GB DDR4-3200', parts:swap(INTEL,'gpu_gre','gpu_5070'), rel:[50,60], fps:F_INT70,
+    note:'RTX 5070 turi DLSS 4, geresnį spindulių sekimą (ray tracing) ir kelių kadrų generavimą. CC560 korpusas telpa plokštės iki 370 mm.' },
+];
+
+const sum = b => b.parts.reduce((a,k) => a + P[k].p, 0);
+B.forEach(b => { b.partsSum = sum(b); b.total = b.quote || b.partsSum; });
+const eur = (v, d=2) => v.toLocaleString('lt-LT', { minimumFractionDigits:d, maximumFractionDigits:d }) + ' €';
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+const KEY = 'pcbuilds.v1';
+let state = { on: Object.fromEntries(B.map(b => [b.id, true])), res: '1080' };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.on) state = { ...state, ...s }; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const visible = () => B.filter(b => state.on[b.id]);
+
+function renderToggles() {
+  document.getElementById('toggles').innerHTML = B.map(b => `
+    <label class="sum ${state.on[b.id] ? 'on' : ''} ${b.cur ? 'cur' : ''}">
+      <input type="checkbox" data-id="${b.id}" ${state.on[b.id] ? 'checked' : ''}>
+      <div class="name">${esc(b.name)}</div>
+      <div class="spec">${b.cpu} · ${b.gpu} · ${b.ram}</div>
+      <div class="price">${eur(b.total,0)}</div>
+      <div class="rel">${b.rel[0] ? `+${b.rel[0]} % / +${b.rel[1]} % greitesnė` : 'dabartinis našumas'}</div>
+      ${budgetBadge(b)}
+    </label>`).join('');
+}
+
+function budgetBadge(b) {
+  const d = Math.round(b.total - BUDGET);
+  if (b.cur && b.quote) return '';
+  return d > 0 ? `<span class="badge over">+${d} € virš biudžeto</span>` : `<span class="badge ok">${d} € nuo biudžeto</span>`;
+}
+
+function renderPerf() {
+  const v = visible();
+  [['perf1080', 0], ['perf1440', 1]].forEach(([id, r]) => {
+    const t = document.getElementById(id);
+    if (!v.length) { t.innerHTML = '<tr><td>Nepasirinkta nė viena konfigūracija.</td></tr>'; return; }
+    const head = `<tr><th>Žaidimas (nustatymai)</th>${v.map(b => `<th class="num grp">${esc(b.name)}<br><span class="hw">${b.cpu} + ${b.gpu}</span></th>`).join('')}</tr>`;
+    const price = `<tr class="rel"><td>Kaina</td>${v.map(b => `<td class="num">${eur(b.total,0)}</td>`).join('')}</tr>`;
+    const rel = `<tr class="rel"><td>Kiek greitesnė už dabartinę</td>${v.map(b => `<td class="num">${b.rel[r] ? b.rel[r] + ' % greitesnė' : '–'}</td>`).join('')}</tr>`;
+    const rows = GAMES.map((g, gi) => {
+      const best = Math.max(...v.map(b => b.fps[gi][r]));
+      return `<tr><td>${g}</td>${v.map(b => {
+        const val = b.fps[gi][r];
+        const gpuKey = b.parts.find(k => P[k].t === 'Vaizdo plokštė');
+        const m = gi === 6 && r === 1 && MEASURED[gpuKey] === val;
+        const txt = gi === 0 ? '300+' : (m ? val : '~' + val);
+        return `<td class="num ${gi !== 0 && val === best ? 'best' : ''}">${txt}</td>`;
+      }).join('')}</tr>`;
+    }).join('');
+    t.innerHTML = head + price + rel + rows;
+  });
+}
+
+function renderBuilds() {
+  const v = visible();
+  document.getElementById('builds').innerHTML = v.map(b => {
+    const rows = b.parts.map(k => { const x = P[k];
+      return `<tr><td class="part">${x.t}</td><td><a href="${x.u}" target="_blank" rel="noopener">${esc(x.n)}</a>${x.b ? ` <span class="badge ${x.bo ? 'ok' : 'over'}">${esc(x.b)}</span>` : ''}</td><td><span class="shop s-${x.s}">${SHOPS[x.s]}</span></td><td class="num">${x.p.toFixed(2)}</td></tr>`; }).join('');
+    const tot = b.quote
+      ? `<tr class="sub"><td>Dalių suma pagal svetainės kainas</td><td></td><td></td><td class="num">${b.partsSum.toFixed(2)}</td></tr><tr class="total"><td>Pasiūlymo kaina</td><td></td><td></td><td class="num">${b.quote.toFixed(2)}</td></tr>`
+      : `<tr class="total"><td>Iš viso</td><td></td><td></td><td class="num">${b.total.toFixed(2)}</td></tr>`;
+    return `<details class="build" data-id="${b.id}">
+      <summary><span class="t">${esc(b.name)}</span><span class="s">${b.cpu} · ${b.gpu} · ${b.ram}</span><span class="pr">${eur(b.total)}</span>${budgetBadge(b)}</summary>
+      <div class="body"><div class="wrap"><table><tr><th>Dalis</th><th>Prekė</th><th>Parduotuvė</th><th class="num">Kaina, EUR</th></tr>${rows}${tot}</table></div>
+      ${b.note ? `<p class="note">${esc(b.note)}</p>` : ''}</div></details>`;
+  }).join('') || '<p class="sub">Nepasirinkta nė viena konfigūracija.</p>';
+}
+
+function render() { renderToggles(); renderPerf(); renderBuilds(); save(); }
+
+document.getElementById('toggles').addEventListener('change', e => {
+  if (e.target.dataset.id) { state.on[e.target.dataset.id] = e.target.checked; render(); }
+});
+document.getElementById('all').onclick = () => { B.forEach(b => state.on[b.id] = true); render(); };
+document.getElementById('none').onclick = () => { B.forEach(b => state.on[b.id] = false); render(); };
+document.getElementById('budget').onclick = () => { B.forEach(b => state.on[b.id] = b.total <= 1550); render(); };
+render();
+</script>
+</body>
+</html>
